@@ -81,7 +81,6 @@ export const signIn = async (req: Request, res: Response) => {
             .json({ error: "Error saving user to database" });
         }
 
-        // return res.json({ name, email, picture: user.picture });
         return sendToken(user as CreateToken, 200, res, {
           email: user.email,
           picture: user.picture,
@@ -122,6 +121,8 @@ export const refreshToken = async (req: Request, res: Response) => {
 
   const isActive = await checkRevoke(payload._id + "++" + token);
   if (!isActive) {
+    if (isActive === null)
+      return res.status(401).json({ message: "Invalid token" });
     await revokeAllToken(payload._id);
     return res.status(401).json({ message: "Invalid token" });
   } else {
@@ -135,8 +136,11 @@ export const refreshToken = async (req: Request, res: Response) => {
 };
 
 const checkRevoke = async (token: string) => {
-  const isActive = await Token.findOne({ token, isActive: true });
-  return isActive ? true : false;
+  const isActive = await Token.findOne({ token });
+  // Cek token ada atau tidak
+  // Jika ada return isActive (true | false)
+  // Jika tidak ada return null
+  return isActive ? isActive?.isActive : null;
 };
 
 const revokeAllToken = async (userId: string) => {
