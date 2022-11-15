@@ -81,7 +81,11 @@ export const signIn = async (req: Request, res: Response) => {
             .json({ error: "Error saving user to database" });
         }
 
-        return res.json({ name, email, picture: user.picture });
+        // return res.json({ name, email, picture: user.picture });
+        return sendToken(user as CreateToken, 200, res, {
+          email: user.email,
+          picture: user.picture,
+        });
       });
     } else {
       return sendToken(user as CreateToken, 200, res, {
